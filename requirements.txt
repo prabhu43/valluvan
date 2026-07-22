@@ -1,0 +1,26 @@
+# Core
+python-dotenv==1.0.1
+pandas==2.2.2
+pyarrow==16.1.0
+
+# Vector search / embeddings
+qdrant-client==1.10.1
+# fastembed 0.5+ adds the cross-encoder reranker (fastembed.rerank) used in
+# rag/rerank.py. Pinned to the latest that ships cp313 wheels (onnxruntime 1.27).
+fastembed==0.8.0
+
+# LLM (OpenAI-compatible client; used for Groq/OpenAI/Ollama)
+openai==2.46.0
+
+# Interface
+streamlit==1.37.1
+fastapi==0.112.0
+uvicorn==0.30.5
+
+# Monitoring
+psycopg2-binary==2.9.9
+
+# Evaluation / notebooks
+scikit-learn==1.5.1
+tqdm==4.66.4
+jupyter==1.0.0

@@ -1,0 +1,372 @@
+{
+  "judge_model": "llama-3.1-8b-instant",
+  "n_questions": 25,
+  "summary": [
+    {
+      "variant": "concise",
+      "relevance": 0.74,
+      "groundedness": 0.32,
+      "avg_latency_s": 9.4451,
+      "combined": 0.53
+    },
+    {
+      "variant": "structured",
+      "relevance": 0.68,
+      "groundedness": 0.2,
+      "avg_latency_s": 10.2837,
+      "combined": 0.44
+    }
+  ],
+  "records": [
+    {
+      "question": "What's the point of having eyes if you can't read people's expressions?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents a new interpretation of the kurals, specifically the last sentence, which is not supported by any of the provided kurals."
+    },
+    {
+      "question": "What's the point of having eyes if you can't read people's expressions?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer addresses the question partially, but it introduces new concepts (kindness, compassion, and understanding) not present in the provided kurals, and does not directly answer the question about the point of having eyes if you can't read people's expressions."
+    },
+    {
+      "question": "Can a beautiful woman have any flaws on her skin?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents a new interpretation of the kurals, specifically the phrase 'inner qualities that make her worthy of love', which is not supported by the provided kurals."
+    },
+    {
+      "question": "Can a beautiful woman have any flaws on her skin?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question, but it introduces unrelated concepts such as 'inner qualities' and 'love she receives' that are not supported by the provided kurals."
+    },
+    {
+      "question": "How should I handle a relationship where the other person seems really intense about our friendship but doesn't seem like a good person?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer provides a clear and well-reasoned analysis of the situation, supported by relevant kurals and their translations."
+    },
+    {
+      "question": "How should I handle a relationship where the other person seems really intense about our friendship but doesn't seem like a good person?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer addresses the question by providing guidance on how to handle a potentially toxic friendship, and it is supported by relevant kurals from the context."
+    },
+    {
+      "question": "How can I make sure my decisions won't be criticized by others?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer provides a clear and well-supported explanation of how to make decisions that won't be criticized by others, citing relevant kurals and their meanings."
+    },
+    {
+      "question": "How can I make sure my decisions won't be criticized by others?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer does not directly reference Kural 1319, which is part of the context, and also does not provide specific citations for the claims made in the answer."
+    },
+    {
+      "question": "What kind of people will keep fighting even if their leader tells them to stop?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents wisdom not present in the provided kurals, specifically the phrase 'driven by fearlessness and a desire to act'"
+    },
+    {
+      "question": "What kind of people will keep fighting even if their leader tells them to stop?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer introduces concepts not present in the context, such as 'personal ambition' and 'desire for power', and does not directly address the question."
+    },
+    {
+      "question": "I'm struggling to move on after a breakup, is there anything that can help me deal with these feelings?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents a new conclusion that is not supported by the provided kurals, and also does not directly address the question's request for 'anything that can help' in dealing with the feelings."
+    },
+    {
+      "question": "I'm struggling to move on after a breakup, is there anything that can help me deal with these feelings?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer does not directly address the question, and it invents new wisdom ('try not to dwell on the past', 'focus on your own healing and growth', 'allow yourself to feel the emotions', 'remind yourself of your own strength and resilience', 'time will help you move forward', 'take things one step at a time') not supported by the provided kurals."
+    },
+    {
+      "question": "Would the world be a better place if we spent more time reflecting on our own mistakes?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer references multiple kurals but does not directly address the question of whether the world would be a better place if we spent more time reflecting on our own mistakes."
+    },
+    {
+      "question": "Would the world be a better place if we spent more time reflecting on our own mistakes?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question, but it introduces concepts not directly related to the question, such as 'balance' and 'moving forward', and also invents wisdom not present in the provided kurals, such as 'excessive self-reflection can lead to avarice and self-pity'."
+    },
+    {
+      "question": "What happens to someone who has an affair with their neighbor's spouse?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer accurately addresses the question and is supported by the provided kurals with correct citations."
+    },
+    {
+      "question": "What happens to someone who has an affair with their neighbor's spouse?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer accurately addresses the question and is supported by the provided CONTEXT kurals with correct citations."
+    },
+    {
+      "question": "Is it a good thing if someone with extreme passions and a quick temper dislikes me?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer addresses the question and provides relevant examples from the context kurals, with correct citations."
+    },
+    {
+      "question": "Is it a good thing if someone with extreme passions and a quick temper dislikes me?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer references multiple kurals but invents its own interpretation and wisdom, not strictly adhering to the original meaning and context of the kurals."
+    },
+    {
+      "question": "What's a poetic way to describe a woman's modesty?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer accurately addresses the question and is supported by the provided kurals with correct citations."
+    },
+    {
+      "question": "What's a poetic way to describe a woman's modesty?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question, but it invents new wisdom and does not directly cite the kurals to support its claims, except for a brief mention of Kural 907."
+    },
+    {
+      "question": "Is there a way to hold on to the feeling of being with someone even when we're physically apart?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents new wisdom and does not strictly adhere to the provided kurals, although it references them."
+    },
+    {
+      "question": "Is there a way to hold on to the feeling of being with someone even when we're physically apart?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents new verses and wisdom not present in the provided CONTEXT kurals, such as 'cultivate a sense of unity and connection in your thoughts and emotions', 'recall the words you spoke to each other', and 'bridge the physical gap and maintain the emotional connection'."
+    },
+    {
+      "question": "How can I keep the memory of my loved one alive after they're gone?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents new wisdom and does not fully address the question, as it provides general advice rather than specific guidance on keeping the memory of a loved one alive after they're gone."
+    },
+    {
+      "question": "How can I keep the memory of my loved one alive after they're gone?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question, but it invents the concept of 'focusing on the joy and happiness you shared together' which is not present in the provided kurals."
+    },
+    {
+      "question": "Can being cruel to others in the morning come back to haunt me by night?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents a new idea that 'the long nights of these days are a form of punishment' which is not supported by the provided kurals."
+    },
+    {
+      "question": "Can being cruel to others in the morning come back to haunt me by night?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer references Kural 319, but also introduces new wisdom not present in the provided context, specifically the advice to 'treat others with kindness and compassion'."
+    },
+    {
+      "question": "How can I make the most of the time I have left to make a positive impact?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents new wisdom and does not strictly adhere to the provided kurals, although it uses some of their quotes."
+    },
+    {
+      "question": "How can I make the most of the time I have left to make a positive impact?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents new wisdom and does not strictly adhere to the provided kurals, particularly Kural 1315 and 1312 which are used to illustrate a point rather than directly supporting the main claim."
+    },
+    {
+      "question": "What if people start talking about my secret love, will it be a good thing?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents a conclusion not supported by the kurals, stating that what matters is how one responds to the revelation of their secret love."
+    },
+    {
+      "question": "What if people start talking about my secret love, will it be a good thing?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer references several kurals, but the main point about being cautious and considering the potential consequences of actions is not directly supported by the provided kurals, and the answer also includes invented wisdom such as 'be honest with yourself and not pretend that everything is fine when it's not'."
+    },
+    {
+      "question": "How can a family's legacy be completely destroyed?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question, but it also includes unrelated information and does not provide a clear answer to how a family's legacy can be completely destroyed. Additionally, it invents a new interpretation of Kural 1029, which is not supported by the original meaning."
+    },
+    {
+      "question": "How can a family's legacy be completely destroyed?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question but invents new wisdom and does not correctly cite the kurals, specifically Kural 1029 is misinterpreted."
+    },
+    {
+      "question": "How can I attract good fortune into my life?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer introduces concepts not present in the provided context, such as 'inner peace and contentment', and misinterprets Kural 1141."
+    },
+    {
+      "question": "How can I attract good fortune into my life?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question, but it introduces concepts not directly related to attracting good fortune, such as freedom from desire and the acquisition of virtue, and fails to provide direct support from the given kurals."
+    },
+    {
+      "question": "I love spending time with my kids, what is it about them that's so special?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer addresses the question and provides relevant information from the kurals, with correct citations."
+    },
+    {
+      "question": "I love spending time with my kids, what is it about them that's so special?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer references Kural 70, 526, 67, and 1025, but does not provide direct quotes or citations from the kurals, and also includes phrases not explicitly mentioned in the kurals, such as 'selfless love, gratitude, and good qualities' and 'being a good role model and guiding them'."
+    },
+    {
+      "question": "What is the best way for a monarch to maintain protection and stability in their realm?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents a new set of principles (1, 2, 3, 4) not directly supported by the provided kurals, although it cites them."
+    },
+    {
+      "question": "What is the best way for a monarch to maintain protection and stability in their realm?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer fully addresses the question and is supported by all the provided kurals with correct citations."
+    },
+    {
+      "question": "What's the most wonderful feeling when being with the one I love?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents wisdom and does not strictly follow the kurals, e.g., 'the sweetness and delight of being with them' is not a direct quote from any kural."
+    },
+    {
+      "question": "What's the most wonderful feeling when being with the one I love?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question, but it does not directly answer it. It also makes claims not supported by the provided kurals, such as 'the sense of unity and connection that transcends all else' and 'can be felt even in the thoughts of the beloved'."
+    },
+    {
+      "question": "What happens to your body if you overeat regularly?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer references Kural 945, but also introduces unrelated concepts such as an imbalance in the digestive system and potential health issues, which are not supported by the provided context."
+    },
+    {
+      "question": "What happens to your body if you overeat regularly?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer addresses the question partially, but it also includes unrelated information about the morality of eating meat, which is not relevant to the question of overeating's effects on the body."
+    },
+    {
+      "question": "What should a king consider before attacking an enemy?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer fully addresses the question by providing five key considerations for a king before attacking an enemy, and all claims are supported by the provided CONTEXT kurals with correct citations."
+    },
+    {
+      "question": "What should a king consider before attacking an enemy?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer addresses the question and is supported by the provided kurals with correct citations."
+    },
+    {
+      "question": "What happens when a loved one misinterprets a random sneeze as a sign of infidelity?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer invents a general statement about sneezes being misinterpreted as signs of infidelity, which is not supported by the kurals."
+    },
+    {
+      "question": "What happens when a loved one misinterprets a random sneeze as a sign of infidelity?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer introduces modern concepts of communication and honesty not present in the provided kurals."
+    },
+    {
+      "question": "What makes a good marriage if the wife isn't managing the home well?",
+      "variant": "concise",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer addresses the question and provides relevant information from the CONTEXT kurals, with correct citations."
+    },
+    {
+      "question": "What makes a good marriage if the wife isn't managing the home well?",
+      "variant": "structured",
+      "relevance": "RELEVANT",
+      "groundedness": "yes",
+      "reason": "The answer addresses the question and provides relevant information from the CONTEXT kurals, with correct citations."
+    },
+    {
+      "question": "How should I treat the spouse of someone who trusts me completely?",
+      "variant": "concise",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer references several kurals but also introduces unrelated concepts and wisdom not present in the context."
+    },
+    {
+      "question": "How should I treat the spouse of someone who trusts me completely?",
+      "variant": "structured",
+      "relevance": "PARTLY_RELEVANT",
+      "groundedness": "no",
+      "reason": "The answer partially addresses the question, but it does not directly answer how to treat the spouse of someone who trusts you completely. It also invents wisdom and does not strictly follow the kurals provided."
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "k": 5,
+  "n": 600,
+  "results": [
+    {
+      "n": 600,
+      "hit_rate": 0.3367,
+      "mrr": 0.211,
+      "chapter_hit_rate": 0.59,
+      "chapter_mrr": 0.4201,
+      "variant": "dense"
+    },
+    {
+      "n": 600,
+      "hit_rate": 0.1617,
+      "mrr": 0.1029,
+      "chapter_hit_rate": 0.3,
+      "chapter_mrr": 0.1985,
+      "variant": "sparse"
+    },
+    {
+      "n": 600,
+      "hit_rate": 0.3133,
+      "mrr": 0.1894,
+      "chapter_hit_rate": 0.56,
+      "chapter_mrr": 0.3631,
+      "variant": "hybrid"
+    },
+    {
+      "n": 600,
+      "hit_rate": 0.3883,
+      "mrr": 0.2557,
+      "chapter_hit_rate": 0.5967,
+      "chapter_mrr": 0.4174,
+      "variant": "rerank"
+    }
+  ],
+  "rewrite": {
+    "sample": 60,
+    "results": [
+      {
+        "n": 60,
+        "hit_rate": 0.3833,
+        "mrr": 0.2164,
+        "chapter_hit_rate": 0.6,
+        "chapter_mrr": 0.4192,
+        "variant": "dense (raw)"
+      },
+      {
+        "n": 60,
+        "hit_rate": 0.1167,
+        "mrr": 0.0667,
+        "chapter_hit_rate": 0.3833,
+        "chapter_mrr": 0.2781,
+        "variant": "dense (rewritten)"
+      },
+      {
+        "n": 60,
+        "hit_rate": 0.5667,
+        "mrr": 0.3561,
+        "chapter_hit_rate": 0.6667,
+        "chapter_mrr": 0.4881,
+        "variant": "rerank (raw)"
+      },
+      {
+        "n": 60,
+        "hit_rate": 0.2167,
+        "mrr": 0.1222,
+        "chapter_hit_rate": 0.45,
+        "chapter_mrr": 0.3011,
+        "variant": "rerank (rewritten)"
+      }
+    ]
+  }
+}
