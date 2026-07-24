@@ -14,8 +14,6 @@ openai==2.46.0
 
 # Interface
 streamlit==1.37.1
-fastapi==0.112.0
-uvicorn==0.30.5
 
 # Monitoring
 psycopg2-binary==2.9.9

@@ -76,7 +76,7 @@ receive a grounded, cited answer.
 | Sparse / keyword  | `Qdrant/bm25` — hybrid via Reciprocal Rank Fusion (RRF)   |
 | Re-ranker         | `ms-marco-MiniLM-L-6-v2` cross-encoder (default mode)     |
 | LLM               | Groq `llama-3.3-70b-versatile` (swappable via env)        |
-| Interface         | Streamlit (planned)                                       |
+| Interface         | Streamlit chat UI (`app/streamlit_app.py`)                |
 | Monitoring        | Postgres + Grafana (planned)                              |
 
 See [`docs/hybrid-search.md`](docs/hybrid-search.md) for why we store two vectors
@@ -138,7 +138,7 @@ calls during ingestion, search, or re-ranking.
 - The **cross-encoder reranker** reads the query and each candidate *together*
   for a precise relevance score — used in two-stage retrieval (dense recall →
   rerank). It measurably beats plain dense; see
-  [`docs/retrieval-evaluation.md`](docs/retrieval-evaluation.md).
+  [`docs/reranking.md`](docs/reranking.md).
 - Embedding text per kural fuses the terse couplet with its English translation
   and prose explanation so short verses gain enough semantic body.
 
@@ -149,7 +149,7 @@ calls during ingestion, search, or re-ranking.
 | Ingestion          | Python script (`ingestion/ingest.py`) + `fastembed`    |
 | RAG / retrieval    | `qdrant-client`, OpenAI-compatible client (`openai`)   |
 | Data prep          | `pandas` + `pyarrow` (reads the HF parquet)            |
-| Interface          | Streamlit (planned)                                    |
+| Interface          | **Streamlit** chat UI (`app/streamlit_app.py`)         |
 | Monitoring         | Postgres + Grafana (planned)                           |
 | Orchestration      | Docker Compose                                          |
 
@@ -252,10 +252,20 @@ make eval-rewrite     # measure LLM query rewriting (raw vs rewritten, sampled)
 make eval-llm         # LLM-as-judge comparison of prompt variants
 ```
 
-### Interface (Phase 8 — coming)
+### Interface — Streamlit chat UI
 ```bash
-make app         # launch the Streamlit chat UI
+make qdrant-up   # ensure the vector DB is running
+make app         # launch the Streamlit chat UI at http://localhost:8501
 ```
+Ask a life/ethics question; Valluvan replies grounded in the Thirukkural and
+**cites the kurals it used**. Each answer includes:
+- a **📖 Sources** expander (Tamil verse, transliteration, English translation
+  and meaning, chapter) for every cited kural,
+- **telemetry** (retrieval mode, prompt variant, model, latency, tokens), and
+- **👍/👎 feedback** buttons — logged via `app/storage.py` for monitoring.
+
+The sidebar lets you switch retrieval mode / prompt variant and `k` on the fly
+(defaults are the evaluation winners: `rerank` + `concise`).
 
 ### Full stack / teardown
 ```bash
@@ -297,7 +307,7 @@ and `OPENAI_API_KEY`. For a fully local setup use `LLM_PROVIDER=ollama`.
 - [x] Retrieval evaluation (dense / sparse / hybrid / rerank → rerank)
 - [x] LLM evaluation (prompt variants via LLM-as-judge → concise)
 - [x] Best practices: hybrid search, cross-encoder re-ranking, query rewriting (all evaluated)
-- [ ] Streamlit UI
+- [x] Streamlit chat UI (cited sources, telemetry, 👍/👎 feedback)
 - [ ] Monitoring (Postgres + Grafana)
 - [ ] Full containerization & cloud deployment
 
