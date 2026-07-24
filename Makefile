@@ -11,7 +11,8 @@ COMPOSE := docker compose
 
 .PHONY: help venv install env qdrant-up qdrant-down qdrant-logs dashboard \
         normalize ingest search rag eval-ground eval-retrieval eval-rewrite \
-        app up down clean
+        eval-llm app monitoring-up monitoring-down grafana \
+        build up down clean logs ps
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -64,16 +65,39 @@ eval-retrieval: ## Evaluate dense/sparse/hybrid/rerank (hit-rate, MRR)
 eval-rewrite: ## Evaluate LLM query rewriting on a sample (raw vs rewritten)
 	EVAL_REWRITE=true $(PY) -m eval.eval_retrieval
 
+eval-llm: ## Compare prompt variants with an LLM-as-judge
+	$(PY) -m eval.eval_llm
+
 ## --- Interface (Phase 8) ---
 app: ## Run the Streamlit chat UI
 	$(PY) -m streamlit run app/streamlit_app.py
 
+## --- Monitoring (Phase 9): Postgres + Grafana ---
+monitoring-up: ## Start Postgres + Grafana (provisioned dashboard)
+	$(COMPOSE) up -d postgres grafana
+
+monitoring-down: ## Stop Postgres + Grafana (keeps data)
+	$(COMPOSE) stop postgres grafana
+
+grafana: ## Print the Grafana dashboard URL
+	@echo "Open http://localhost:$${GRAFANA_PORT:-3000} (login: admin / admin) -> dashboard 'Valluvan — Monitoring'"
+
 ## --- Full stack ---
-up: ## Start all services (docker-compose)
-	$(COMPOSE) up -d
+build: ## Build the app image (Streamlit UI + ingest share it)
+	$(COMPOSE) build
+
+up: ## Build + start the WHOLE stack (qdrant, postgres, grafana, ingest, app)
+	$(COMPOSE) up -d --build
+	@echo "Stack starting. App -> http://localhost:$${APP_PORT:-8501}  |  Grafana -> http://localhost:$${GRAFANA_PORT:-3000}"
+
+logs: ## Tail logs for all services (Ctrl-C to stop)
+	$(COMPOSE) logs -f
+
+ps: ## Show status of all services
+	$(COMPOSE) ps
 
 down: ## Stop all services (keeps data)
 	$(COMPOSE) down
 
-clean: ## Stop all services and DELETE data volumes (Qdrant/Postgres)
+clean: ## Stop all services and DELETE data volumes (Qdrant/Postgres/models)
 	$(COMPOSE) down -v

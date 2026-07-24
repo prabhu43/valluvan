@@ -13,10 +13,13 @@ fastembed==0.8.0
 openai==2.46.0
 
 # Interface
-streamlit==1.37.1
+# 1.40.x accepts pillow 11.x (fastembed 0.8.0 requires pillow>=11); keeps the
+# Docker image and local dev on the same Streamlit. Chat/AppTest APIs unchanged.
+streamlit==1.40.2
 
 # Monitoring
-psycopg2-binary==2.9.9
+# 2.9.10+ ships cp313 wheels (2.9.9 has none -> source build fails on py3.13)
+psycopg2-binary==2.9.12
 
 # Evaluation / notebooks
 scikit-learn==1.5.1

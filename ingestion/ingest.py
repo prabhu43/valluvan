@@ -57,6 +57,22 @@ def load_kurals() -> list[dict]:
 def main() -> None:
     kurals = load_kurals()
     print(f"Loaded {len(kurals)} kurals")
+
+    # Idempotent one-shot ingestion (used by the docker `ingest` service): skip
+    # the expensive re-embed if the collection is already fully populated, unless
+    # FORCE_REINGEST=true. Local re-ingests (make ingest) can force via that env.
+    if os.getenv("FORCE_REINGEST", "false").lower() not in ("1", "true", "yes"):
+        client = QdrantClient(url=QDRANT_URL)
+        if (
+            client.collection_exists(COLLECTION)
+            and client.count(collection_name=COLLECTION).count == len(kurals)
+        ):
+            print(
+                f"'{COLLECTION}' already has {len(kurals)} points at {QDRANT_URL} "
+                "— skipping ingest (set FORCE_REINGEST=true to rebuild)."
+            )
+            return
+
     texts = [build_embed_text(k) for k in kurals]
 
     print(f"Loading dense model:  {DENSE_MODEL}")

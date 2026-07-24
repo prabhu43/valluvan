@@ -1,0 +1,21 @@
+# Runtime dependencies for the Docker image (ingest + Streamlit app + RAG).
+# Excludes dev/eval-only libs from requirements.txt (pandas, pyarrow,
+# scikit-learn, tqdm, jupyter) and normalize.py — the container uses the
+# already-committed data/thirukkural.json, so pandas/pyarrow aren't needed.
+
+python-dotenv==1.0.1
+
+# Vector search / embeddings (reranker lives in fastembed.rerank)
+qdrant-client==1.10.1
+fastembed==0.8.0
+
+# LLM (OpenAI-compatible client; used for Groq/OpenAI/Ollama)
+openai==2.46.0
+
+# Interface
+# 1.40.x accepts pillow 11.x, resolving the fastembed(>=11) vs streamlit(<11 in
+# 1.37) pillow conflict under pip's strict resolver. Chat/AppTest APIs unchanged.
+streamlit==1.40.2
+
+# Monitoring (Postgres); 2.9.10+ ships cp313 wheels
+psycopg2-binary==2.9.12

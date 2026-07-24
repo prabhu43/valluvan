@@ -1,0 +1,21 @@
+apiVersion: 1
+
+# Postgres datasource for the Valluvan monitoring dashboard.
+# Credentials come from env vars passed to the grafana container in
+# docker-compose.yml. For a cloud DB (e.g. Supabase) point `url` at the managed
+# host and set sslmode to "require".
+datasources:
+  - name: Valluvan Postgres
+    uid: valluvan-postgres
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    user: $POSTGRES_USER
+    isDefault: true
+    editable: true
+    jsonData:
+      database: $POSTGRES_DB
+      sslmode: disable
+      postgresVersion: 1600
+    secureJsonData:
+      password: $POSTGRES_PASSWORD

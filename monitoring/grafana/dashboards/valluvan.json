@@ -1,0 +1,202 @@
+{
+  "uid": "valluvan-monitoring",
+  "title": "Valluvan — Monitoring",
+  "tags": ["valluvan", "rag"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total conversations",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*) AS conversations FROM conversations WHERE $__timeFilter(ts);"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Positive feedback %",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 0, "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "yellow", "value": 50 }, { "color": "green", "value": 75 } ] } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT 100.0 * count(*) FILTER (WHERE feedback = 1) / NULLIF(count(*) FILTER (WHERE feedback IS NOT NULL), 0) AS positive_pct FROM conversations WHERE $__timeFilter(ts);"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Avg latency (s)",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 2, "color": { "mode": "thresholds" } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(latency_s) AS avg_latency_s FROM conversations WHERE $__timeFilter(ts);"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Avg tokens / answer",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": { "decimals": 0, "color": { "mode": "thresholds" } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(total_tokens) AS avg_tokens FROM conversations WHERE $__timeFilter(ts);"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Conversations over time",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 40 } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroupAlias(ts, $__interval), count(*) AS conversations FROM conversations WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 1;"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Token usage over time",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "line", "fillOpacity": 20 } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroupAlias(ts, $__interval), sum(total_tokens) AS total_tokens, avg(total_tokens) AS avg_tokens FROM conversations WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 1;"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Average latency over time",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 12 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "drawStyle": "line", "fillOpacity": 20 } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroupAlias(ts, $__interval), avg(latency_s) AS avg_latency_s FROM conversations WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 1;"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "piechart",
+      "title": "Feedback breakdown",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 12 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "options": { "legend": { "showLegend": true, "placement": "right" }, "pieType": "donut" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CASE WHEN feedback = 1 THEN 'positive' WHEN feedback = -1 THEN 'negative' ELSE 'no feedback' END AS metric, count(*) AS value FROM conversations WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 1;"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "piechart",
+      "title": "Retrieval mode distribution",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 12 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "options": { "legend": { "showLegend": true, "placement": "right" }, "pieType": "pie" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(retrieval_mode, 'unknown') AS metric, count(*) AS value FROM conversations WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 2 DESC;"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "barchart",
+      "title": "Prompt variant usage",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 20 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(prompt_variant, 'unknown') AS variant, count(*) AS n FROM conversations WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 2 DESC;"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Recent questions",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 20 },
+      "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "valluvan-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ts, question, retrieval_mode, prompt_variant, latency_s, total_tokens, feedback FROM conversations WHERE $__timeFilter(ts) ORDER BY ts DESC LIMIT 50;"
+        }
+      ]
+    }
+  ]
+}

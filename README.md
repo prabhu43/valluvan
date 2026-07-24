@@ -77,7 +77,7 @@ receive a grounded, cited answer.
 | Re-ranker         | `ms-marco-MiniLM-L-6-v2` cross-encoder (default mode)     |
 | LLM               | Groq `llama-3.3-70b-versatile` (swappable via env)        |
 | Interface         | Streamlit chat UI (`app/streamlit_app.py`)                |
-| Monitoring        | Postgres + Grafana (planned)                              |
+| Monitoring        | Postgres + Grafana dashboard (10 panels)                  |
 
 See [`docs/hybrid-search.md`](docs/hybrid-search.md) for why we store two vectors
 per kural, and [`docs/retrieval-evaluation.md`](docs/retrieval-evaluation.md) for
@@ -150,8 +150,9 @@ calls during ingestion, search, or re-ranking.
 | RAG / retrieval    | `qdrant-client`, OpenAI-compatible client (`openai`)   |
 | Data prep          | `pandas` + `pyarrow` (reads the HF parquet)            |
 | Interface          | **Streamlit** chat UI (`app/streamlit_app.py`)         |
-| Monitoring         | Postgres + Grafana (planned)                           |
-| Orchestration      | Docker Compose                                          |
+| Monitoring         | Postgres + Grafana (`app/db.py`, `monitoring/grafana/`) |
+| Orchestration      | Docker Compose (full stack: app + ingest + qdrant + postgres + grafana) |
+| Containerization   | `Dockerfile` (shared by the `app` and one-shot `ingest` services) |
 
 ---
 
@@ -170,13 +171,40 @@ and commentary. The Thirukkural itself is in the **public domain**.
 
 ## Prerequisites
 
-- **Docker** (for Qdrant)
-- **Python 3.10+** and [`uv`](https://github.com/astral-sh/uv)
+- **Docker** — runs the full stack (Qdrant, Postgres, Grafana, and the app itself)
+- **Python 3.10+** and [`uv`](https://github.com/astral-sh/uv) — only for the
+  local-dev / evaluation workflow (Option B); not needed for `make up`
 - A free **Groq API key** — get one at https://console.groq.com/keys
 
 ---
 
 ## Quick start
+
+### Option A — Everything in Docker (recommended)
+
+The whole stack (Qdrant, Postgres, Grafana, one-shot ingestion, and the Streamlit
+app) runs with a single command:
+
+```bash
+make env                       # create .env, then set GROQ_API_KEY=gsk-...
+make up                        # build + start the entire stack
+```
+
+`make up` builds the app image, waits for Qdrant/Postgres to be healthy, runs a
+**one-shot `ingest`** service (idempotent — skips if the collection is already
+populated), then launches the app. Once it's up:
+
+- **App** → <http://localhost:8501>
+- **Grafana** → <http://localhost:3000> (login `admin` / `admin`)
+
+```bash
+make ps        # check service status
+make logs      # tail logs
+make down      # stop everything (keeps data)
+make clean     # stop AND delete all data volumes
+```
+
+### Option B — Local Python (for development / evaluation)
 
 Every step has a `make` target. Run `make help` to see them all.
 
@@ -267,12 +295,30 @@ Ask a life/ethics question; Valluvan replies grounded in the Thirukkural and
 The sidebar lets you switch retrieval mode / prompt variant and `k` on the fly
 (defaults are the evaluation winners: `rerank` + `concise`).
 
+### Monitoring — Postgres + Grafana
+```bash
+make monitoring-up   # start Postgres + Grafana (dashboard auto-provisioned)
+make app             # ask questions and rate answers 👍/👎
+make grafana         # print the Grafana URL
+```
+Open Grafana at <http://localhost:3000> (login `admin` / `admin`) → the
+**Valluvan — Monitoring** dashboard. It has **10 panels** covering usage
+(volume, retrieval-mode & prompt distribution), performance (latency, tokens),
+and quality (👍/👎 feedback). Storage is env-driven: it uses Postgres when
+`POSTGRES_HOST` is set (local **or** a managed cloud DB like Supabase), and
+falls back to a local JSONL file otherwise. See
+[`docs/monitoring.md`](docs/monitoring.md).
+
 ### Full stack / teardown
 ```bash
-make up          # start all services via docker-compose
+make up          # build + start the ENTIRE stack (qdrant, postgres, grafana, ingest, app)
+make ps          # show service status
+make logs        # tail all logs
 make down        # stop all services (keeps data)
-make clean       # stop AND delete data volumes (re-run make ingest afterwards)
+make clean       # stop AND delete data volumes (Qdrant/Postgres/Grafana/models)
 ```
+See [Quick start → Option A](#option-a--everything-in-docker-recommended) for the
+one-command containerized workflow.
 
 ---
 
@@ -293,6 +339,9 @@ All configuration is via `.env` (see `.env.example`). Key variables:
 | `EMBEDDING_MODEL`   | Dense embedding model                      | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` |
 | `SPARSE_MODEL`      | Sparse (BM25) model                        | `Qdrant/bm25`                                              |
 | `RERANK_MODEL`      | Cross-encoder reranker                     | `Xenova/ms-marco-MiniLM-L-6-v2`                            |
+| `MONITORING_DB`     | `auto` \| `postgres` \| `jsonl`            | `auto`                                                     |
+| `POSTGRES_HOST`     | Postgres host (local or cloud, e.g. Supabase) | `localhost`                                             |
+| `POSTGRES_SSLMODE`  | `prefer`/`disable` local, `require` for cloud | `prefer`                                                |
 
 To switch the LLM to OpenAI: set `LLM_PROVIDER=openai`, `LLM_MODEL=gpt-4o-mini`,
 and `OPENAI_API_KEY`. For a fully local setup use `LLM_PROVIDER=ollama`.
@@ -308,8 +357,9 @@ and `OPENAI_API_KEY`. For a fully local setup use `LLM_PROVIDER=ollama`.
 - [x] LLM evaluation (prompt variants via LLM-as-judge → concise)
 - [x] Best practices: hybrid search, cross-encoder re-ranking, query rewriting (all evaluated)
 - [x] Streamlit chat UI (cited sources, telemetry, 👍/👎 feedback)
-- [ ] Monitoring (Postgres + Grafana)
-- [ ] Full containerization & cloud deployment
+- [x] Monitoring (Postgres + Grafana, 10-panel dashboard)
+- [x] Full containerization (`make up` runs the entire stack in Docker)
+- [ ] Cloud deployment (bonus)
 
 ---
 
