@@ -1,0 +1,22 @@
+# Dependencies for Streamlit Community Cloud.
+#
+# Streamlit Cloud looks for a requirements.txt next to the entrypoint
+# (app/streamlit_app.py) before falling back to the repo root, so this lean
+# runtime set is used in the cloud — mirroring requirements-docker.txt and
+# avoiding the dev/eval-only libs (pandas, pyarrow, scikit-learn, jupyter) in
+# the root requirements.txt. Keep these three files in sync when versions bump.
+
+python-dotenv==1.0.1
+
+# Vector search / embeddings (reranker lives in fastembed.rerank)
+qdrant-client==1.10.1
+fastembed==0.8.0
+
+# LLM (OpenAI-compatible client; used for Groq/OpenAI/Ollama)
+openai==2.46.0
+
+# Interface
+streamlit==1.40.2
+
+# Monitoring (Postgres); 2.9.10+ ships cp313 wheels
+psycopg2-binary==2.9.12

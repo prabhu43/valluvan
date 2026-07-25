@@ -32,6 +32,7 @@ load_dotenv()
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "thirukkural.json"
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY") or None
 COLLECTION = os.getenv("QDRANT_COLLECTION", "thirukkural")
 DENSE_MODEL = os.getenv(
     "EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
@@ -62,7 +63,7 @@ def main() -> None:
     # the expensive re-embed if the collection is already fully populated, unless
     # FORCE_REINGEST=true. Local re-ingests (make ingest) can force via that env.
     if os.getenv("FORCE_REINGEST", "false").lower() not in ("1", "true", "yes"):
-        client = QdrantClient(url=QDRANT_URL)
+        client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
         if (
             client.collection_exists(COLLECTION)
             and client.count(collection_name=COLLECTION).count == len(kurals)
@@ -85,7 +86,7 @@ def main() -> None:
     print("Computing sparse embeddings ...")
     sparse_vectors = list(sparse_embedder.embed(texts))
 
-    client = QdrantClient(url=QDRANT_URL)
+    client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
     if client.collection_exists(COLLECTION):
         client.delete_collection(COLLECTION)
     client.create_collection(

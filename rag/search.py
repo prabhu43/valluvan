@@ -19,6 +19,7 @@ from qdrant_client.models import FusionQuery, Fusion, Prefetch, SparseVector
 load_dotenv()
 
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY") or None
 COLLECTION = os.getenv("QDRANT_COLLECTION", "thirukkural")
 DENSE_MODEL = os.getenv(
     "EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
@@ -28,7 +29,7 @@ SPARSE_MODEL = os.getenv("SPARSE_MODEL", "Qdrant/bm25")
 
 @lru_cache(maxsize=1)
 def _clients():
-    client = QdrantClient(url=QDRANT_URL)
+    client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
     dense = TextEmbedding(model_name=DENSE_MODEL)
     sparse = SparseTextEmbedding(model_name=SPARSE_MODEL)
     return client, dense, sparse

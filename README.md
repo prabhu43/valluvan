@@ -30,6 +30,7 @@ it used, with retrieval/LLM telemetry and 👍/👎 feedback.*
 - [Quick start](#quick-start)
 - [How to run each step](#how-to-run-each-step)
 - [Configuration](#configuration)
+- [Cloud deployment](#cloud-deployment)
 - [Project status](#project-status)
 - [License / attribution](#license--attribution)
 
@@ -340,7 +341,7 @@ Open Grafana at <http://localhost:3000> (login `admin` / `admin`) → the
 **Valluvan — Monitoring** dashboard. It has **10 panels** covering usage
 (volume, retrieval-mode & prompt distribution), performance (latency, tokens),
 and quality (👍/👎 feedback). Storage is env-driven: it uses Postgres when
-`POSTGRES_HOST` is set (local **or** a managed cloud DB like Supabase), and
+`POSTGRES_HOST` is set (local **or** a managed cloud DB like Neon), and
 falls back to a local JSONL file otherwise. See
 [`docs/monitoring.md`](docs/monitoring.md).
 
@@ -379,11 +380,26 @@ All configuration is via `.env` (see `.env.example`). Key variables:
 | `SPARSE_MODEL`      | Sparse (BM25) model                        | `Qdrant/bm25`                                              |
 | `RERANK_MODEL`      | Cross-encoder reranker                     | `Xenova/ms-marco-MiniLM-L-6-v2`                            |
 | `MONITORING_DB`     | `auto` \| `postgres` \| `jsonl`            | `auto`                                                     |
-| `POSTGRES_HOST`     | Postgres host (local or cloud, e.g. Supabase) | `localhost`                                             |
+| `POSTGRES_HOST`     | Postgres host (local or cloud, e.g. Neon)     | `localhost`                                             |
 | `POSTGRES_SSLMODE`  | `prefer`/`disable` local, `require` for cloud | `prefer`                                                |
 
 To switch the LLM to OpenAI: set `LLM_PROVIDER=openai`, `LLM_MODEL=gpt-4o-mini`,
 and `OPENAI_API_KEY`. For a fully local setup use `LLM_PROVIDER=ollama`.
+
+---
+
+## Cloud deployment
+
+Valluvan runs on free managed services with **no code changes** — everything is
+env-driven, so only secrets differ from local:
+
+- **Streamlit Community Cloud** — the app (`app/streamlit_app.py`)
+- **Qdrant Cloud** — the vector database (1,330 kurals)
+- **Groq** — the LLM
+- **Neon** — monitoring Postgres → **Grafana Cloud** dashboard
+
+Full step-by-step (accounts, ingestion into Qdrant Cloud, Streamlit secrets,
+Grafana datasource) is in [`docs/deployment.md`](docs/deployment.md).
 
 ---
 
