@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+IMAGES = ROOT / "images"
+
 import streamlit as st  # noqa: E402
 
 from app.storage import log_feedback, log_interaction  # noqa: E402
@@ -157,6 +159,10 @@ if "feedback" not in st.session_state:
 
 # --- Sidebar ---------------------------------------------------------------
 with st.sidebar:
+    _valluvar = IMAGES / "valluvar-seated.jpg"
+    if _valluvar.exists():
+        st.image(str(_valluvar), use_container_width=True)
+        st.caption("Thiruvalluvar")
     st.header("⚙️ Settings")
     mode = st.selectbox(
         "Retrieval mode",
@@ -191,6 +197,13 @@ st.caption(
     "Timeless wisdom from the **Thirukkural** of Thiruvalluvar — ask about life, "
     "ethics, love, or leadership, and get guidance grounded in the couplets."
 )
+_banner = IMAGES / "thirukkural-banner.jpg"
+if _banner.exists():
+    st.image(
+        str(_banner),
+        use_container_width=True,
+        caption="The Thirukkural on palm-leaf manuscript",
+    )
 _warm()
 
 # --- Suggested questions ---------------------------------------------------

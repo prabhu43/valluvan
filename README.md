@@ -407,3 +407,10 @@ and `OPENAI_API_KEY`. For a fully local setup use `LLM_PROVIDER=ollama`.
 The Thirukkural is in the public domain. Dataset courtesy of the Hugging Face
 dataset linked above. This project is built for educational purposes as part of
 the DataTalksClub LLM Zoomcamp.
+
+### Image credits
+
+- Sidebar portrait of Thiruvalluvar — art by Kmm.azzam,
+  [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via Wikimedia
+  Commons.
+- Palm-leaf Thirukkural banner — public domain, via Wikimedia Commons.
