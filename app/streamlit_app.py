@@ -33,6 +33,27 @@ from rag.search import SEARCHERS  # noqa: E402
 
 st.set_page_config(page_title="Valluvan — Thirukkural Wisdom", page_icon="📜")
 
+# Starter questions shown on the welcome screen, grouped by the Thirukkural's
+# three sections (paals). Clicking one submits it like a typed question.
+SUGGESTIONS = {
+    "அறம் · Virtue & ethics": [
+        "How can I control my anger?",
+        "Why is honesty important, and what happens when I lie?",
+        "What does the Thirukkural say about being kind to guests?",
+        "How should I treat people who wronged me?",
+    ],
+    "பொருள் · Wealth, work & leadership": [
+        "What makes a good leader?",
+        "How should I handle money and avoid poverty?",
+        "Why does the Thirukkural warn against laziness?",
+        "How do I choose the right friends?",
+    ],
+    "இன்பம் · Love & relationships": [
+        "What does the Thirukkural say about true love between partners?",
+        "How does separation from a loved one feel?",
+    ],
+}
+
 
 @st.cache_resource(show_spinner=False)
 def _warm():
@@ -108,6 +129,26 @@ def _render_assistant(msg: dict) -> None:
     _render_feedback(r)
 
 
+def _render_suggestions() -> None:
+    """Starter-question chips inside a collapsible panel pinned at the top.
+
+    Expanded on the welcome screen; auto-collapses once a conversation starts
+    but stays available (click the header to reopen).
+    """
+    with st.expander(
+        "💡 Suggested questions", expanded=not st.session_state.messages
+    ):
+        for section, questions in SUGGESTIONS.items():
+            st.markdown(f"**{section}**")
+            cols = st.columns(2)
+            for i, q in enumerate(questions):
+                if cols[i % 2].button(
+                    q, key=f"suggest_{q}", use_container_width=True
+                ):
+                    st.session_state.pending = q
+                    st.rerun()
+
+
 # --- Session state ---------------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -152,6 +193,11 @@ st.caption(
 )
 _warm()
 
+# --- Suggested questions ---------------------------------------------------
+# Pinned at the top, always available: expanded on the welcome screen, collapsed
+# (but reopenable) once a conversation is underway.
+_render_suggestions()
+
 # --- Replay history --------------------------------------------------------
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
@@ -161,7 +207,12 @@ for msg in st.session_state.messages:
             st.markdown(msg["content"])
 
 # --- Handle new input ------------------------------------------------------
-if question := st.chat_input("Ask Valluvan a question…"):
+# A question can come from a clicked suggestion (session_state.pending) or the
+# chat input box; both flow through the same path below.
+typed = st.chat_input("Ask Valluvan a question…")
+question = st.session_state.pop("pending", None) or typed
+
+if question:
     st.session_state.messages.append({"role": "user", "content": question})
     with st.chat_message("user"):
         st.markdown(question)

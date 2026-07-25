@@ -10,6 +10,29 @@ ethics, polity, and love), indexes it for **hybrid search**, and uses an LLM to
 answer modern questions grounded in the most relevant verses — citing each kural
 it relies on.
 
+## Preview
+
+<!-- Screenshot: run `make up`, ask a question in the UI, then capture the
+     answer with its cited kurals + feedback buttons. Save as images/streamlit-ui.png -->
+![Valluvan Streamlit chat UI — an answer grounded in the Thirukkural with cited kurals and 👍/👎 feedback](images/streamlit-ui.png)
+
+*Valluvan answers a life question grounded in the Thirukkural, citing every kural
+it used, with retrieval/LLM telemetry and 👍/👎 feedback.*
+
+## Contents
+
+- [Who was Thiruvalluvar, and what is the Thirukkural?](#who-was-thiruvalluvar-and-what-is-the-thirukkural)
+- [Why this project?](#why-this-project)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Dataset](#dataset)
+- [Prerequisites](#prerequisites)
+- [Quick start](#quick-start)
+- [How to run each step](#how-to-run-each-step)
+- [Configuration](#configuration)
+- [Project status](#project-status)
+- [License / attribution](#license--attribution)
+
 ---
 
 ## Who was Thiruvalluvar, and what is the Thirukkural?
@@ -58,16 +81,28 @@ receive a grounded, cited answer.
 ## Architecture
 
 ```
-                ┌────────────────────────────────────────────────┐
-   question ───▶│  rag/search.py   dense recall → cross-encoder    │
-                │        │         re-rank (default: rerank mode)   │
-                │        ▼                                        │
-                │   Qdrant (docker)  ── 1,330 kurals, 2 vectors   │
-                │        │                                        │
-                │        ▼                                        │
-                │  rag/rag.py   grounded prompt → LLM (Groq)      │──▶ answer
-                └────────────────────────────────────────────────┘         + cited kurals
+                ┌─────────────────────────────────────────────────────────┐
+   you  ───────▶ │  Streamlit chat UI  (app/streamlit_app.py)              │
+      question   │        │                              ▲                  │
+                │        ▼                              │ answer +         │
+                │  rag/rag.py                           │ cited kurals     │
+                │        │                              │                  │
+                │        ▼                                                 │
+                │  rag/search.py   dense recall ─▶ cross-encoder re-rank   │
+                │        │            (default: rerank mode)               │
+                │        ▼                                                 │
+                │  Qdrant  ── 1,330 kurals, dense + sparse vectors         │
+                │        │                                                 │
+                │        ▼                                                 │
+                │  grounded prompt ─▶ LLM (Groq)  ─────────────────────────┤
+                └────────────────────────────────┬────────────────────────┘
+                                                 │ log interaction + 👍/👎
+                                                 ▼
+                                  Postgres  ──▶  Grafana dashboard
+                               (app/db.py)       (10 panels)
 ```
+
+Everything above runs in Docker via a single `make up`.
 
 | Concern           | Technology                                                |
 |-------------------|-----------------------------------------------------------|
@@ -308,6 +343,10 @@ and quality (👍/👎 feedback). Storage is env-driven: it uses Postgres when
 `POSTGRES_HOST` is set (local **or** a managed cloud DB like Supabase), and
 falls back to a local JSONL file otherwise. See
 [`docs/monitoring.md`](docs/monitoring.md).
+
+<!-- Screenshot: open the "Valluvan — Monitoring" dashboard in Grafana (after a
+     few queries so panels have data) and capture it. Save as images/grafana-dashboard.png -->
+![Grafana "Valluvan — Monitoring" dashboard — 10 panels for usage, performance and feedback](images/grafana-dashboard.png)
 
 ### Full stack / teardown
 ```bash
