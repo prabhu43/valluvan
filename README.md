@@ -26,6 +26,7 @@ it used, with retrieval/LLM telemetry and 👍/👎 feedback.*
 - [Who was Thiruvalluvar, and what is the Thirukkural?](#who-was-thiruvalluvar-and-what-is-the-thirukkural)
 - [Why this project?](#why-this-project)
 - [Architecture](#architecture)
+- [Evaluation criteria](#evaluation-criteria)
 - [Tech Stack](#tech-stack)
 - [Dataset](#dataset)
 - [Prerequisites](#prerequisites)
@@ -121,6 +122,27 @@ See [`docs/hybrid-search.md`](docs/hybrid-search.md) for why we store two vector
 per kural, and [`docs/retrieval-evaluation.md`](docs/retrieval-evaluation.md) for
 the retrieval evaluation (dense / sparse / hybrid / rerank + query rewriting) and
 the resulting decisions.
+
+---
+
+## Evaluation criteria
+
+A quick map of every LLM Zoomcamp grading criterion to where it is satisfied in
+this project, so evaluators can find the evidence fast.
+
+| Criterion | Pts | Where it's covered |
+|-----------|:---:|--------------------|
+| **Problem description** | 2 | [Who was Thiruvalluvar](#who-was-thiruvalluvar-and-what-is-the-thirukkural) + [Why this project?](#why-this-project) — a clear, well-scoped problem |
+| **Retrieval flow** | 2 | Knowledge base (Qdrant, 1,330 kurals) **and** LLM (Groq) — see [Architecture](#architecture); code in [`rag/search.py`](rag/search.py) + [`rag/rag.py`](rag/rag.py) |
+| **Retrieval evaluation** | 2 | Dense / sparse / hybrid / rerank compared (hit-rate + MRR); best = rerank. [`docs/retrieval-evaluation.md`](docs/retrieval-evaluation.md), `make eval-retrieval` |
+| **LLM evaluation** | 2 | Multiple prompt variants judged (LLM-as-judge; concise won). [`docs/llm-evaluation.md`](docs/llm-evaluation.md), `make eval-llm` |
+| **Interface** | 2 | Streamlit chat UI ([`app/streamlit_app.py`](app/streamlit_app.py)) — [live demo](https://valluvan.streamlit.app) |
+| **Ingestion pipeline** | 2 | Automated Python script [`ingestion/ingest.py`](ingestion/ingest.py) (idempotent, one-shot Docker service) |
+| **Monitoring** | 2 | User 👍/👎 feedback **and** a 10-panel Grafana dashboard — [Monitoring](#monitoring--postgres--grafana), [`docs/monitoring.md`](docs/monitoring.md) |
+| **Containerization** | 2 | Whole stack in [`docker-compose.yml`](docker-compose.yml) — `make up` |
+| **Reproducibility** | 2 | Clear step-by-step [Quick start](#quick-start), committed dataset, all deps pinned in `requirements*.txt` |
+| **Best practices** | +3 | Hybrid search, cross-encoder re-ranking, **and** query rewriting — all evaluated ([`docs/retrieval-evaluation.md`](docs/retrieval-evaluation.md)) |
+| **Cloud deployment** (bonus) | +2 | Full stack live on free managed services — [live demo](https://valluvan.streamlit.app), [`docs/deployment.md`](docs/deployment.md) |
 
 ---
 
