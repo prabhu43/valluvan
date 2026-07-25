@@ -10,6 +10,8 @@ ethics, polity, and love), indexes it for **hybrid search**, and uses an LLM to
 answer modern questions grounded in the most relevant verses — citing each kural
 it relies on.
 
+**▶️ Live demo:** <https://valluvan.streamlit.app>
+
 ## Preview
 
 <!-- Screenshot: run `make up`, ask a question in the UI, then capture the
@@ -414,7 +416,7 @@ Grafana datasource) is in [`docs/deployment.md`](docs/deployment.md).
 - [x] Streamlit chat UI (cited sources, telemetry, 👍/👎 feedback)
 - [x] Monitoring (Postgres + Grafana, 10-panel dashboard)
 - [x] Full containerization (`make up` runs the entire stack in Docker)
-- [ ] Cloud deployment (bonus)
+- [x] Cloud deployment (bonus) — [live on Streamlit Cloud](https://valluvan.streamlit.app) (Qdrant Cloud + Groq + Neon Postgres + Grafana Cloud)
 
 ---
 
