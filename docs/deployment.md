@@ -86,6 +86,13 @@ Any managed Postgres works (the app is provider-agnostic). We use **Neon**:
    the entrypoint to **`app/streamlit_app.py`**. Streamlit Cloud installs the
    lean **`app/requirements.txt`** (next to the entrypoint), not the heavier root
    file.
+
+   > **Python version — set 3.13** in *Advanced settings → Python version*
+   > (or *Manage app → Settings* after deploying, then reboot). Streamlit Cloud
+   > currently defaults to **3.14**, where `fastembed 0.8.0` requires
+   > `pillow>=12` but `streamlit 1.40.2` requires `pillow<12` — an unsatisfiable
+   > conflict that fails the install. Python 3.13 (our verified version) resolves
+   > it because fastembed there only needs `pillow>=11`.
 3. Open **Advanced settings → Secrets** and paste (TOML — top-level keys are
    also exposed as environment variables, which our `os.getenv` code reads):
 
