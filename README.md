@@ -227,6 +227,19 @@ and commentary. The Thirukkural itself is in the **public domain**.
 - Canonical, normalized records: `data/thirukkural.json` (produced by
   `ingestion/normalize.py`)
 
+### Reference knowledge documents
+
+The 1,330 kurals are terse couplets — they don't state facts *about* the
+Thirukkural itself (e.g. "how many kurals are there?", "who was Thiruvalluvar?",
+"what is the statue at Kanyakumari?"). To answer those meta-questions, the
+ingestion pipeline also loads a small curated set of **reference notes** from
+[`data/knowledge.json`](data/knowledge.json) (facts sourced from Wikipedia on
+the Thirukkural, Thiruvalluvar, book structure, translations, and landmarks).
+They are embedded into the **same Qdrant collection** with `type: "knowledge"`
+and cited in answers as *(Reference)* — so both individual verses and
+book-level facts are retrievable. This is part of every setup automatically (no
+extra step).
+
 ---
 
 ## Prerequisites
@@ -316,7 +329,8 @@ make normalize   # regenerate data/thirukkural.json from the raw parquet
 
 ### Ingestion
 ```bash
-make ingest      # embed all 1,330 kurals (dense + sparse) and upsert to Qdrant
+make ingest      # embed all 1,330 kurals + 14 reference notes (dense + sparse)
+                 # and upsert them to Qdrant (idempotent; FORCE_REINGEST=true rebuilds)
 ```
 
 ### Retrieval (compare modes)
@@ -447,6 +461,11 @@ Grafana datasource) is in [`docs/deployment.md`](docs/deployment.md).
 The Thirukkural is in the public domain. Dataset courtesy of the Hugging Face
 dataset linked above. This project is built for educational purposes as part of
 the DataTalksClub LLM Zoomcamp.
+
+The reference notes in [`data/knowledge.json`](data/knowledge.json) are factual
+summaries adapted from Wikipedia articles on the Thirukkural, Thiruvalluvar, and
+related topics (each note records its source URL), available under
+[CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/).
 
 ### Image credits
 

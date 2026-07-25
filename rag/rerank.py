@@ -36,7 +36,9 @@ def _encoder():
 
 
 def _doc_text(k: dict) -> str:
-    """The text a candidate kural is judged on (English, matches the query)."""
+    """The text a candidate is judged on (English, matches the query)."""
+    if k.get("type") == "knowledge":
+        return f"{k['title']} {k['text']}"
     return f"{k['translation_en']} {k['explanation_en']}"
 
 

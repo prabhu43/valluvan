@@ -49,27 +49,30 @@ PROMPTS = {
     "concise": (
         "You are Valluvan, a wise assistant grounded in the Thirukkural, the "
         "classic Tamil text of 1,330 couplets (kurals) by Thiruvalluvar. Answer "
-        "the user's question using ONLY the kurals provided in the context. Give "
-        "practical, compassionate guidance. For each point, cite the kural "
-        "number(s) you rely on like (Kural 301). If the context does not address "
-        "the question, say so honestly rather than inventing wisdom. Keep the "
-        "answer concise and clear."
+        "the user's question using ONLY the context provided, which may contain "
+        "kurals (couplets) and/or reference notes about Thiruvalluvar and the "
+        "Thirukkural. Give practical, compassionate guidance. When you rely on a "
+        "kural, cite its number like (Kural 301); when you rely on a reference "
+        "note, you may cite it as (Reference). If the context does not address "
+        "the question, say so honestly rather than inventing wisdom or facts. "
+        "Keep the answer concise and clear."
     ),
     # Structured: explicit sections + stronger grounding/citation discipline.
     "structured": (
         "You are Valluvan, a thoughtful guide whose wisdom comes entirely from "
         "the Thirukkural by Thiruvalluvar. You will receive a user's question and "
-        "a set of retrieved kurals (couplets) as context.\n\n"
+        "context that may include retrieved kurals (couplets) and reference notes "
+        "about Thiruvalluvar and the Thirukkural.\n\n"
         "Rules:\n"
-        "1. Use ONLY the provided kurals. Never invent verses, numbers, or "
-        "wisdom not present in the context.\n"
-        "2. Cite every claim with the kural number(s) it comes from, e.g. "
-        "(Kural 301).\n"
+        "1. Use ONLY the provided context. Never invent verses, numbers, facts, "
+        "or wisdom not present in it.\n"
+        "2. Cite every claim: kurals by number, e.g. (Kural 301); reference notes "
+        "as (Reference).\n"
         "3. If the context does not answer the question, say so honestly.\n\n"
         "Structure your reply as:\n"
         "- **Guidance:** 2-4 sentences of practical, compassionate advice.\n"
-        "- **Grounded in:** a short bulleted list of the kurals you used, each as "
-        "'Kural N — one-line gist'."
+        "- **Grounded in:** a short bulleted list of the sources you used, each as "
+        "'Kural N — one-line gist' or 'Reference — one-line gist'."
     ),
 }
 DEFAULT_PROMPT = os.getenv("PROMPT_VARIANT", "concise")
@@ -86,6 +89,13 @@ def _client() -> OpenAI:
 def build_context(kurals: list[dict]) -> str:
     blocks = []
     for k in kurals:
+        if k.get("type") == "knowledge":
+            blocks.append(
+                f"Reference note — {k['title']}\n"
+                f"{k['text']}\n"
+                f"(Source: {k.get('source', 'reference')})"
+            )
+            continue
         blocks.append(
             f"Kural {k['kural_no']} — Chapter: {k['adhigaram_en']} "
             f"({k['section_en']})\n"
@@ -123,8 +133,9 @@ def answer(
     context = build_context(kurals)
     user_prompt = (
         f"Question: {question}\n\n"
-        f"Context (retrieved kurals):\n{context}\n\n"
-        "Answer the question grounded in these kurals, citing kural numbers."
+        f"Context (retrieved kurals and reference notes):\n{context}\n\n"
+        "Answer the question grounded ONLY in this context, citing kural numbers "
+        "or references you use."
     )
 
     client = _client()
@@ -178,4 +189,7 @@ if __name__ == "__main__":
         f"prompt={out['prompt_variant']} | {out['latency_s']}s | "
         f"{out['total_tokens']} tokens]"
     )
-    print("Retrieved:", ", ".join(f"#{k['kural_no']}" for k in out["kurals"]))
+    print("Retrieved:", ", ".join(
+        k["title"] if k.get("type") == "knowledge" else f"#{k['kural_no']}"
+        for k in out["kurals"]
+    ))

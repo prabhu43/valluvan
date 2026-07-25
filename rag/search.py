@@ -136,5 +136,8 @@ if __name__ == "__main__":
     for mode in ("dense", "sparse", "hybrid", "rerank"):
         print(f"\n===== {mode.upper()} =====")
         for k in search(q, mode=mode, limit=3):
+            if k.get("type") == "knowledge":
+                print(f"  [ref] {k['title']}")
+                continue
             verse = k["translation_en"].replace("\n", " ")
             print(f"  #{k['kural_no']:>4} [{k['adhigaram_en']}] {verse}")

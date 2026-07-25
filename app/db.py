@@ -92,7 +92,11 @@ def log_interaction(question: str, result: dict) -> str:
                 "ts": _utc_now(),
                 "question": question,
                 "answer": result.get("answer"),
-                "kural_nos": [k["kural_no"] for k in result.get("kurals", [])],
+                "kural_nos": [
+                    k["kural_no"]
+                    for k in result.get("kurals", [])
+                    if "kural_no" in k
+                ],
                 "retrieval_mode": result.get("retrieval_mode"),
                 "rewritten_query": result.get("rewritten_query"),
                 "prompt_variant": result.get("prompt_variant"),

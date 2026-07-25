@@ -54,7 +54,9 @@ def _jsonl_log_interaction(question: str, result: dict) -> str:
         "ts": _utc_now(),
         "question": question,
         "answer": result.get("answer"),
-        "kural_nos": [k["kural_no"] for k in result.get("kurals", [])],
+        "kural_nos": [
+            k["kural_no"] for k in result.get("kurals", []) if "kural_no" in k
+        ],
         "feedback": None,
     }
     for key in _TELEMETRY_KEYS:

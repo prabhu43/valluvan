@@ -1,14 +1,22 @@
 """Ingest the canonical Thirukkural dataset into Qdrant with hybrid vectors.
 
-Each kural is stored with TWO named vectors so we can do hybrid search
+Two kinds of documents are ingested into the SAME collection:
+  - 1,330 kurals (type="kural")     — the individual couplets
+  - curated reference notes (type="knowledge", data/knowledge.json) — facts
+    ABOUT Thiruvalluvar and the Thirukkural (how many kurals, book structure,
+    the Kanyakumari statue, ...) so meta-questions the couplets don't answer
+    on their own are still retrievable.
+
+Each document is stored with TWO named vectors so we can do hybrid search
 (see docs/hybrid-search.md):
   - "dense"  : semantic embedding (paraphrase-multilingual-MiniLM-L12-v2, 384-d)
   - "sparse" : lexical BM25 vector (Qdrant/bm25)
 
-The embedding text combines the (terse) couplet with its English translation and
-prose explanation so short verses gain enough semantic body. The full record is
-stored as the payload so retrieval can cite Tamil + translation + commentary and
-filter by section / adhigaram.
+For a kural, the embedding text combines the (terse) couplet with its English
+translation and prose explanation so short verses gain enough semantic body; for
+a knowledge doc it combines the title and the fact text. The full record is
+stored as the payload so retrieval can cite Tamil + translation + commentary (or
+the reference title + source) and filter by type / section / adhigaram.
 
 Run (with Qdrant up):  python ingestion/ingest.py
 """
@@ -31,6 +39,10 @@ from qdrant_client.models import (
 load_dotenv()
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "thirukkural.json"
+KNOWLEDGE = Path(__file__).resolve().parent.parent / "data" / "knowledge.json"
+# Point-ID offset for reference/knowledge documents so they never collide with
+# the 1..1330 kural IDs.
+KNOWLEDGE_ID_BASE = 100_001
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY") or None
 COLLECTION = os.getenv("QDRANT_COLLECTION", "thirukkural")
@@ -42,7 +54,10 @@ VECTOR_SIZE = 384
 
 
 def build_embed_text(k: dict) -> str:
-    """Text used to compute both the dense and sparse vectors for a kural."""
+    """Text used to compute both the dense and sparse vectors for a document."""
+    if k.get("type") == "knowledge":
+        # Reference note about Thiruvalluvar / the Thirukkural itself (not a kural).
+        return f"{k['title']} {k['text']}"
     return (
         f"{k['adhigaram_en']} ({k['section_en']}). "
         f"{k['kural_ta']} "
@@ -52,12 +67,41 @@ def build_embed_text(k: dict) -> str:
 
 
 def load_kurals() -> list[dict]:
-    return json.loads(DATA.read_text(encoding="utf-8"))
+    kurals = json.loads(DATA.read_text(encoding="utf-8"))
+    for k in kurals:
+        k.setdefault("type", "kural")
+    return kurals
+
+
+def load_knowledge() -> list[dict]:
+    """Load curated reference documents about Thiruvalluvar and the Thirukkural.
+
+    These give the assistant meta-knowledge (e.g. how many kurals exist, who
+    Thiruvalluvar was, the book structure) that the individual couplets do not
+    contain. They are ingested into the same collection with type='knowledge'.
+    """
+    if not KNOWLEDGE.exists():
+        return []
+    docs = json.loads(KNOWLEDGE.read_text(encoding="utf-8"))
+    for i, d in enumerate(docs, start=1):
+        d["type"] = "knowledge"
+        d["knowledge_no"] = i
+    return docs
+
+
+def point_id(doc: dict) -> int:
+    """Stable Qdrant point ID: kurals keep 1..1330, knowledge docs use a high range."""
+    if doc.get("type") == "knowledge":
+        return KNOWLEDGE_ID_BASE + int(doc["knowledge_no"])
+    return doc["kural_no"]
 
 
 def main() -> None:
     kurals = load_kurals()
-    print(f"Loaded {len(kurals)} kurals")
+    knowledge = load_knowledge()
+    docs = kurals + knowledge
+    print(f"Loaded {len(kurals)} kurals + {len(knowledge)} knowledge docs "
+          f"= {len(docs)} documents")
 
     # Idempotent one-shot ingestion (used by the docker `ingest` service): skip
     # the expensive re-embed if the collection is already fully populated, unless
@@ -66,15 +110,15 @@ def main() -> None:
         client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
         if (
             client.collection_exists(COLLECTION)
-            and client.count(collection_name=COLLECTION).count == len(kurals)
+            and client.count(collection_name=COLLECTION).count == len(docs)
         ):
             print(
-                f"'{COLLECTION}' already has {len(kurals)} points at {QDRANT_URL} "
+                f"'{COLLECTION}' already has {len(docs)} points at {QDRANT_URL} "
                 "— skipping ingest (set FORCE_REINGEST=true to rebuild)."
             )
             return
 
-    texts = [build_embed_text(k) for k in kurals]
+    texts = [build_embed_text(d) for d in docs]
 
     print(f"Loading dense model:  {DENSE_MODEL}")
     dense_embedder = TextEmbedding(model_name=DENSE_MODEL)
@@ -100,17 +144,17 @@ def main() -> None:
     )
 
     points = []
-    for k, dv, sv in zip(kurals, dense_vectors, sparse_vectors):
+    for d, dv, sv in zip(docs, dense_vectors, sparse_vectors):
         points.append(
             PointStruct(
-                id=k["kural_no"],
+                id=point_id(d),
                 vector={
                     "dense": dv.tolist(),
                     "sparse": SparseVector(
                         indices=sv.indices.tolist(), values=sv.values.tolist()
                     ),
                 },
-                payload=k,
+                payload=d,
             )
         )
     client.upsert(collection_name=COLLECTION, points=points)

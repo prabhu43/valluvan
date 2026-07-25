@@ -57,7 +57,7 @@ def _metrics(mode: str, rows: list[dict], k: int, kural_chapter: dict) -> dict:
         results = searcher(row["query"], limit=k)
 
         rank = next(
-            (i for i, r in enumerate(results, start=1) if r["kural_no"] == gold),
+            (i for i, r in enumerate(results, start=1) if r.get("kural_no") == gold),
             None,
         )
         if rank is not None:
@@ -68,7 +68,8 @@ def _metrics(mode: str, rows: list[dict], k: int, kural_chapter: dict) -> dict:
             (
                 i
                 for i, r in enumerate(results, start=1)
-                if kural_chapter[r["kural_no"]] == gold_chapter
+                if r.get("kural_no") in kural_chapter
+                and kural_chapter[r["kural_no"]] == gold_chapter
             ),
             None,
         )

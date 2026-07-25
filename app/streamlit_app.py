@@ -73,8 +73,21 @@ def _ask(question: str, mode: str, prompt: str, limit: int) -> dict:
 
 
 def _render_sources(kurals: list[dict]) -> None:
-    with st.expander(f"📖 Sources — {len(kurals)} kural(s) cited"):
+    with st.expander(f"📖 Sources — {len(kurals)} source(s) cited"):
         for k in kurals:
+            if k.get("type") == "knowledge":
+                st.markdown(f"**📘 {k['title']}** · _reference note_")
+                st.markdown(k["text"])
+                src = k.get("source")
+                url = k.get("source_url")
+                if src and url:
+                    st.caption(f"Source: [{src}]({url})")
+                elif src:
+                    st.caption(f"Source: {src}")
+                if k.get("rerank_score") is not None:
+                    st.caption(f"rerank score: {k['rerank_score']:.2f}")
+                st.divider()
+                continue
             st.markdown(
                 f"**Kural {k['kural_no']}** · _{k['adhigaram_en']}_ "
                 f"({k['section_en']})"
