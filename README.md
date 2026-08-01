@@ -1,4 +1,4 @@
-# 📿 Valluvan — Thirukkural Wisdom Assistant
+# 📜 Valluvan — Thirukkural Wisdom Assistant
 
 > Ask any life or ethics question and get an answer grounded in the **1,330
 > couplets (kurals)** of Thiruvalluvar, with citations.
