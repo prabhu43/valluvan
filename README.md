@@ -21,6 +21,13 @@ it relies on.
 *Valluvan answers a life question grounded in the Thirukkural, citing every kural
 it used, with retrieval/LLM telemetry and 👍/👎 feedback.*
 
+<!-- Screenshot: ask a question in Tamil (e.g. "கோபத்தை எப்படி கட்டுப்படுத்துவது?")
+     and capture the Tamil answer with its cited kurals. Save as images/streamlit-ui-tamil.png -->
+![Valluvan answering a Tamil question about controlling anger, grounded in the Thirukkural with cited kurals](images/streamlit-ui-tamil.png)
+
+*Ask in **Tamil** too — here Valluvan answers "கோபத்தை எப்படி கட்டுப்படுத்துவது?"
+("how do I control anger?") entirely in Tamil, grounded in the relevant kurals.*
+
 ## Contents
 
 - [Who was Thiruvalluvar, and what is the Thirukkural?](#who-was-thiruvalluvar-and-what-is-the-thirukkural)
@@ -213,7 +220,9 @@ calls during ingestion, search, or re-ranking.
 - The **cross-encoder reranker** reads the query and each candidate *together*
   for a precise relevance score — used in two-stage retrieval (dense recall →
   rerank). It measurably beats plain dense; see
-  [`docs/reranking.md`](docs/reranking.md).
+  [`docs/reranking.md`](docs/reranking.md). The reranker model is English-only,
+  so **Tamil-script questions bypass it and use hybrid (dense + sparse) recall**,
+  which matches Tamil far better.
 - Embedding text per kural fuses the terse couplet with its English translation
   and prose explanation so short verses gain enough semantic body.
 
@@ -252,8 +261,10 @@ ingestion pipeline also loads a small curated set of **reference notes** from
 the Thirukkural, Thiruvalluvar, book structure, translations, and landmarks).
 They are embedded into the **same Qdrant collection** with `type: "knowledge"`
 and cited in answers as *(Reference)* — so both individual verses and
-book-level facts are retrievable. This is part of every setup automatically (no
-extra step).
+book-level facts are retrievable. Each note carries **both English and Tamil**
+text in its embedding, so meta-questions are answered whether asked in English
+(*"how many kurals are there?"*) or Tamil (*"திருக்குறளில் எத்தனை குறள்கள்?"*).
+This is part of every setup automatically (no extra step).
 
 ---
 

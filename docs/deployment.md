@@ -1,4 +1,4 @@
-# Cloud deployment (Phase 12 — bonus)
+# Cloud deployment
 
 Valluvan is fully env-driven, so the same code that runs locally via
 `docker compose` also runs on free managed services with **no code changes** —

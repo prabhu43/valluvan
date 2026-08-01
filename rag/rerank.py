@@ -11,7 +11,9 @@ therefore two-stage retrieval:
 
 Because the user's questions and the kural translations/explanations are in
 English, a small English cross-encoder (ms-marco-MiniLM) reranks well and stays
-fast + local (ONNX, no API cost). Swap via the RERANK_MODEL env var.
+fast + local (ONNX, no API cost). Swap via the RERANK_MODEL env var. Tamil-script
+queries skip this English reranker (handled in rag/search.py) and use hybrid
+recall instead, since the cross-encoder does not score Tamil well.
 
 See docs/retrieval-evaluation.md for the measured lift.
 """

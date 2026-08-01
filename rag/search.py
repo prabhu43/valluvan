@@ -9,6 +9,7 @@ See docs/hybrid-search.md for the rationale.
 """
 
 import os
+import re
 from functools import lru_cache
 
 from dotenv import load_dotenv
@@ -96,6 +97,17 @@ SEARCHERS = {
     "hybrid": hybrid_search,
 }
 
+# The cross-encoder reranker (ms-marco-MiniLM) is English-only. For Tamil-script
+# queries it scores poorly and demotes correct matches, so the rerank path falls
+# back to hybrid (dense+sparse) recall — which handles Tamil well — for them.
+_TAMIL_CHARS = re.compile(r"[\u0b80-\u0bff]")
+
+
+def _is_tamil(text: str) -> bool:
+    """True if the text contains any Tamil-script characters."""
+    return bool(_TAMIL_CHARS.search(text))
+
+
 # Number of first-stage candidates fed to the cross-encoder before re-ranking.
 RERANK_CANDIDATES = int(os.getenv("RERANK_CANDIDATES", "20"))
 RERANK_BASE_MODE = os.getenv("RERANK_BASE_MODE", "dense")
@@ -111,7 +123,13 @@ def reranked_search(
 
     Pulls `candidates` results from a cheap retriever (`base_mode`) and re-scores
     them with a cross-encoder, returning the best `limit`. See rag/rerank.py.
+
+    For Tamil-script queries the English cross-encoder is skipped in favour of
+    hybrid (dense+sparse) recall, which matches Tamil questions far better.
     """
+    if _is_tamil(query):
+        return hybrid_search(query, limit=limit)
+
     from rag.rerank import rerank  # lazy: only load the model if reranking is used
 
     base_mode = base_mode or RERANK_BASE_MODE

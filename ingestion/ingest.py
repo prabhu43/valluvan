@@ -57,7 +57,10 @@ def build_embed_text(k: dict) -> str:
     """Text used to compute both the dense and sparse vectors for a document."""
     if k.get("type") == "knowledge":
         # Reference note about Thiruvalluvar / the Thirukkural itself (not a kural).
-        return f"{k['title']} {k['text']}"
+        # Include Tamil title/text (when present) so the multilingual embedder
+        # also matches Tamil-script meta-questions, not just English ones.
+        parts = [k["title"], k["text"], k.get("title_ta", ""), k.get("text_ta", "")]
+        return " ".join(p for p in parts if p).strip()
     return (
         f"{k['adhigaram_en']} ({k['section_en']}). "
         f"{k['kural_ta']} "
@@ -130,7 +133,7 @@ def main() -> None:
     print("Computing sparse embeddings ...")
     sparse_vectors = list(sparse_embedder.embed(texts))
 
-    client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+    client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY, timeout=120)
     if client.collection_exists(COLLECTION):
         client.delete_collection(COLLECTION)
     client.create_collection(
@@ -157,7 +160,15 @@ def main() -> None:
                 payload=d,
             )
         )
-    client.upsert(collection_name=COLLECTION, points=points)
+    # Upsert in batches so a large single write does not time out against
+    # remote (Qdrant Cloud) instances.
+    batch_size = 256
+    for start in range(0, len(points), batch_size):
+        client.upsert(
+            collection_name=COLLECTION,
+            points=points[start : start + batch_size],
+            wait=True,
+        )
 
     count = client.count(collection_name=COLLECTION).count
     print(f"Upserted {count} points (dense+sparse) into '{COLLECTION}' at {QDRANT_URL}")
