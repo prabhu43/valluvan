@@ -1,8 +1,7 @@
 # Retrieval Evaluation
 
 This document records how Valluvan's retrieval layer was evaluated, the results,
-and the decisions that followed. It covers **Phase 5** (dense vs sparse vs hybrid)
-and the retrieval **best practices** added in **Phase 7** (cross-encoder
+and the decisions that followed. It covers **Phase 5** (dense vs sparse vs hybrid) and the retrieval **best practices** added in **Phase 7** (cross-encoder
 re-ranking and LLM query rewriting). It maps to the course criteria *"multiple
 retrieval approaches evaluated, best one used"*, *"hybrid search (evaluated)"*,
 *"document re-ranking (evaluated)"*, and *"user query rewriting (evaluated)"*.

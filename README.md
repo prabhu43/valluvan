@@ -41,7 +41,7 @@ it used, with retrieval/LLM telemetry and 👍/👎 feedback.*
 
 ## Who was Thiruvalluvar, and what is the Thirukkural?
 
-<img src="images/thiruvalluvar.jpg" alt="Traditional portrait of Thiruvalluvar" width="240" align="right" />
+<img src="images/thiruvalluvar-statue.jpg" alt="Thiruvalluvar statue at Kanyakumari" width="240" align="right" />
 
 **Thiruvalluvar** (often simply **Valluvar**) was a celebrated Tamil poet and
 philosopher, traditionally believed to have lived in South India between roughly
@@ -68,8 +68,8 @@ cultures. It has been translated into more than 40 languages.
 Valluvan brings this timeless wisdom to your fingertips: ask a modern question,
 and it answers grounded in the most relevant kurals — with citations.
 
-> *Image: traditional representation of Thiruvalluvar
-> ([Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Thiruvalluvar_(Likely_Representation).jpg), public domain).*
+> *Image: the 133-foot Thiruvalluvar statue at Kanyakumari
+> ([Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Thiruvalluvar_Statue_front_view.jpg), CC BY-SA 4.0).*
 
 ---
 
@@ -84,33 +84,47 @@ receive a grounded, cited answer.
 
 ## Architecture
 
-```
-                ┌─────────────────────────────────────────────────────────┐
-   you  ───────▶ │  Streamlit chat UI  (app/streamlit_app.py)              │
-      question   │        │                              ▲                  │
-                │        ▼                              │ answer +         │
-                │  rag/rag.py                           │ cited kurals     │
-                │        │                              │                  │
-                │        ▼                                                 │
-                │  rag/search.py   dense recall ─▶ cross-encoder re-rank   │
-                │        │            (default: rerank mode)               │
-                │        ▼                                                 │
-                │  Qdrant  ── 1,330 kurals, dense + sparse vectors         │
-                │        │                                                 │
-                │        ▼                                                 │
-                │  grounded prompt ─▶ LLM (Groq)  ─────────────────────────┤
-                └────────────────────────────────┬────────────────────────┘
-                                                 │ log interaction + 👍/👎
-                                                 ▼
-                                  Postgres  ──▶  Grafana dashboard
-                               (app/db.py)       (10 panels)
+```mermaid
+flowchart LR
+    user([👤 User])
+  ui["Streamlit UI"]
+
+    subgraph s1["① RETRIEVE"]
+    search["dense recall +<br/>cross-encoder re-rank"]
+        qdrant[("Qdrant<br/>1,330 kurals +<br/>14 reference notes")]
+    end
+    subgraph s2["② GENERATE"]
+    prompt["Grounded prompt"]
+        llm["LLM (Groq)<br/><code>llama-3.3-70b</code>"]
+    end
+    subgraph s3["③ MONITOR"]
+    pg[("Postgres")]
+        grafana["Grafana"]
+    end
+
+    user -->|question| ui
+    ui -->|1 · find relevant verses| search
+    search -->|vector query| qdrant
+    qdrant -->|top-k candidates| search
+    search -->|2 · build context| prompt --->|3 · send grounded prompt| llm
+    llm -->|4 · answer + citations| ui
+    ui -->|5 · log Q&A + 👍/👎| pg --> grafana
 ```
 
-Everything above runs in Docker via a single `make up`.
+Each request follows five steps: **Qdrant** retrieves the most relevant
+kurals/notes (step 1); the app builds a grounded prompt from that context (step
+2) and sends it to the **LLM (Groq)** (step 3); the LLM returns a cited answer
+(step 4); and **Postgres** logs the interaction and 👍/👎 feedback for the
+**Grafana** dashboard (step 5). The default retrieval is `rerank` — dense recall
+followed by a cross-encoder re-rank — which won the
+[retrieval evaluation](docs/retrieval-evaluation.md) over sparse and hybrid.
 
-| Concern           | Technology                                                |
+> Everything except the managed cloud services runs in Docker via a single
+> `make up`.
+
+| Component         | Technology                                                |
 |-------------------|-----------------------------------------------------------|
-| Vector DB         | Qdrant (Docker) — named `dense` + `sparse` vectors        |
+| Vector DB         | Qdrant (Docker) — Thirukkural collection with all 1,330 kurals and general information about Thiruvalluvar and the Thirukkural; named `dense` + `sparse` vectors |
 | Dense embeddings  | `paraphrase-multilingual-MiniLM-L12-v2` (Tamil + English) |
 | Sparse / keyword  | `Qdrant/bm25` — hybrid via Reciprocal Rank Fusion (RRF)   |
 | Re-ranker         | `ms-marco-MiniLM-L-6-v2` cross-encoder (default mode)     |
@@ -170,9 +184,10 @@ this project, so evaluators can find the evidence fast.
 - **[Qdrant](https://qdrant.tech/)** (v1.10.1), run as a **Docker container** via
   `docker-compose.yml`. Data persists in a named Docker volume
   (`qdrant_storage`).
-- One collection (`thirukkural`) holds all **1,330 kurals**, each stored with
-  **two named vectors** plus the full record as payload (Tamil verse,
-  transliteration, translations, commentary, section/chapter metadata).
+- One collection (`thirukkural`) holds all **1,330 kurals** plus **14 reference
+  notes** with general information about Thiruvalluvar and the Thirukkural.
+  Each record is stored with **two named vectors** and its full content and
+  metadata as payload.
 - Qdrant performs **native hybrid search**: dense + sparse retrieval fused with
   **Reciprocal Rank Fusion (RRF)** in a single query (its Query API), so no
   external search engine is needed.
@@ -208,7 +223,7 @@ calls during ingestion, search, or re-ranking.
 |--------------------|--------------------------------------------------------|
 | Ingestion          | Python script (`ingestion/ingest.py`) + `fastembed`    |
 | RAG / retrieval    | `qdrant-client`, OpenAI-compatible client (`openai`)   |
-| Data prep          | `pandas` + `pyarrow` (reads the HF parquet)            |
+| Data prep          | `pandas` + `pyarrow` (local parquet normalization only) |
 | Interface          | **Streamlit** chat UI (`app/streamlit_app.py`)         |
 | Monitoring         | Postgres + Grafana (`app/db.py`, `monitoring/grafana/`) |
 | Orchestration      | Docker Compose (full stack: app + ingest + qdrant + postgres + grafana) |
@@ -432,7 +447,8 @@ Valluvan runs on free managed services with **no code changes** — everything i
 env-driven, so only secrets differ from local:
 
 - **Streamlit Community Cloud** — the app (`app/streamlit_app.py`)
-- **Qdrant Cloud** — the vector database (1,330 kurals)
+- **Qdrant Cloud** — the vector database (1,330 kurals + 14 reference notes
+  about Thiruvalluvar and the Thirukkural)
 - **Groq** — the LLM
 - **Neon** — monitoring Postgres → **Grafana Cloud** dashboard
 
@@ -469,7 +485,10 @@ related topics (each note records its source URL), available under
 
 ### Image credits
 
-- Sidebar portrait of Thiruvalluvar — art by Kmm.azzam,
+- Thiruvalluvar statue at Kanyakumari (README) — photo by Kumarendra,
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia
+  Commons.
+- Sidebar portrait of Thiruvalluvar (Streamlit app) — art by Kmm.azzam,
   [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via Wikimedia
   Commons.
 - Palm-leaf Thirukkural banner — public domain, via Wikimedia Commons.
