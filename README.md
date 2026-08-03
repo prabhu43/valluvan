@@ -42,6 +42,7 @@ it used, with retrieval/LLM telemetry and 👍/👎 feedback.*
 - [Configuration](#configuration)
 - [Cloud deployment](#cloud-deployment)
 - [Project status](#project-status)
+- [Roadmap / next steps](#roadmap--next-steps)
 - [License / attribution](#license--attribution)
 
 ---
@@ -480,6 +481,34 @@ Grafana datasource) is in [`docs/deployment.md`](docs/deployment.md).
 - [x] Monitoring (Postgres + Grafana, 10-panel dashboard)
 - [x] Full containerization (`make up` runs the entire stack in Docker)
 - [x] Cloud deployment (bonus) — [live on Streamlit Cloud](https://valluvan.streamlit.app) (Qdrant Cloud + Groq + Neon Postgres + Grafana Cloud)
+
+---
+
+## Roadmap / next steps
+
+Ideas being considered for future iterations:
+
+### 1. A proper data-ingestion pipeline (with orchestration)
+
+Today ingestion is a single idempotent Python script
+([`ingestion/ingest.py`](ingestion/ingest.py)) that loads the Thirukkural +
+reference notes, embeds them, and upserts into Qdrant. It works well for a fixed
+dataset, but a real pipeline would make the data layer reproducible,
+incremental, and observable.
+
+### 2. Speech-to-text — "Talk to Valluvan" 🎙️
+
+Let users **speak** their question (in English or Tamil) instead of typing, and
+optionally **hear** the answer read back:
+
+- **Speech-to-text (STT)** — transcribe voice questions with a multilingual model
+  such as **OpenAI Whisper** (or `faster-whisper` locally), which supports Tamil.
+  The transcript would feed the existing RAG pipeline unchanged.
+- **Text-to-speech (TTS)** — read the grounded answer aloud in Tamil/English for a
+  hands-free, accessible experience — fitting for reciting kurals.
+- **UI** — a mic button in the Streamlit chat (e.g. `streamlit-mic-recorder` /
+  `audio_input`) to capture audio, with graceful fallback to text.
+
 
 ---
 
